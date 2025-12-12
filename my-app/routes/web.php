@@ -1,11 +1,11 @@
 <?php
 
-use App\Models\character;
+use App\Models\Character;
 use App\Http\Controllers\CharacterController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    $characters = character::all();
+    $characters = Character::all();
     return view('welcome', compact('characters'));
 });
 

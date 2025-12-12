@@ -26,7 +26,7 @@
             <h1 class="text-center mb-4 text-primary">Персонажи и их описание</h1>
             <div class="row g-4">
                 @php
-                    use App\Models\character;
+                    use App\Models\Character;
                     $characters = Character::all();
                 @endphp
                 

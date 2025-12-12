@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\character;
+use App\Models\Character;
 use Illuminate\Http\Request;
 
 class CharacterController extends Controller
@@ -32,17 +32,17 @@ class CharacterController extends Controller
             ->with('success', 'Персонаж успешно создан!');
     }
 
-    public function show(character $character)
+    public function show(Character $character)
     {
         return view('characters.show', compact('character'));
     }
 
-    public function edit(character $character)
+    public function edit(Character $character)
     {
         return view('characters.edit', compact('character'));
     }
 
-    public function update(Request $request, character $character)
+    public function update(Request $request, Character $character)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -61,7 +61,7 @@ class CharacterController extends Controller
             ->with('success', 'Персонаж успешно обновлен!');
     }
 
-    public function destroy(character $character)
+    public function destroy(Character $character)
     {
         $character->delete();
         return redirect('/')
