@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
-// use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
+use App\Models\User;
+use App\Models\Character;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -23,6 +25,32 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //
+        Gate::define('update-character', function (User $user, Character $character) {
+            return $user->id === $character->user_id || $user->is_admin;
+        });
+
+        // Gate: может ли пользователь удалять персонажа?
+        Gate::define('delete-character', function (User $user, Character $character) {
+            return $user->id === $character->user_id || $user->is_admin;
+        });
+
+
+        Gate::define('restore-character', function (User $user) {
+            return $user->is_admin;
+        });
+
+
+        Gate::define('force-delete-character', function (User $user) {
+            return $user->is_admin;
+        });
+
+
+        Gate::define('view-trash', function (User $user) {
+            return $user->is_admin;
+        });
+
+        Gate::define('view-character', function (User $user, Character $character) {
+            return true;
+        });
     }
 }

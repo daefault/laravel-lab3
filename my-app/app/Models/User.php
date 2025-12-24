@@ -7,11 +7,43 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
+    protected static function boot()
+    {
+        parent::boot();
 
+        static::creating(function ($user) {
+            if (empty($user->username)) {
+                $user->username = $user->generateUsername();
+            }
+        });
+
+        static::updating(function ($user) {
+            if ($user->isDirty('name') && empty($user->username)) {
+                $user->username = $user->generateUsername();
+            }
+        });
+    }
+    public function generateUsername()
+{
+    $baseUsername = Str::slug($this->name, '-'); 
+    $username = $baseUsername;
+    $counter = 1;
+    
+    // Проверяем уникальность
+    while (self::where('username', $username)
+              ->where('id', '!=', $this->id)
+              ->exists()) {
+        $username = $baseUsername . '-' . $counter;
+        $counter++;
+    }
+    
+    return $username;
+}
     /**
      * The attributes that are mass assignable.
      *
@@ -19,8 +51,10 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
+        'is_admin',
     ];
 
     /**
@@ -40,5 +74,18 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_admin' => 'boolean',
     ];
+    public function characters()
+    {
+        return $this->hasMany(\App\Models\Character::class);
+    }
+    public function isAdmin(): bool
+    {
+        return $this->is_admin === true;
+    }
+    public function getRouteKeyName()
+    {
+        return 'username';
+    }
 }

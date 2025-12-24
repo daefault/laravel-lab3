@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Character;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class CharacterController extends Controller
 {
@@ -21,13 +22,13 @@ class CharacterController extends Controller
             'description' => 'required|string'
         ]);
 
-        $character = new Character();
-        $character->setAttribute('name', $validated['name']);
-        $character->setAttribute('image', $validated['image']);
-        $character->setAttribute('type', $validated['type']);
-        $character->setAttribute('description', $validated['description']);
-        $character->save();
-
+        $character = Character::create([
+            'name' => $validated['name'],
+            'image' => $validated['image'],
+            'type' => $validated['type'],
+            'description' => $validated['description'],
+            'user_id' => auth()->id()
+        ]);
         return redirect('/')
             ->with('success', 'Персонаж успешно создан!');
     }
@@ -39,11 +40,17 @@ class CharacterController extends Controller
 
     public function edit(Character $character)
     {
+        if (!Gate::allows('update-character', $character)) {
+            abort(403, 'У вас нет прав на редактирование этого персонажа');
+        }
         return view('characters.edit', compact('character'));
     }
 
     public function update(Request $request, Character $character)
     {
+        if (!Gate::allows('update-character', $character)) {
+            abort(403, 'У вас нет прав на редактирование этого персонажа');
+        }
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'image' => 'required|string|max:255',
@@ -51,7 +58,7 @@ class CharacterController extends Controller
             'description' => 'required|string'
         ]);
 
-         $character->name = $validated['name'];
+        $character->name = $validated['name'];
         $character->type = $validated['type'];
         $character->image = $validated['image'];
         $character->description = $validated['description'];
@@ -63,8 +70,39 @@ class CharacterController extends Controller
 
     public function destroy(Character $character)
     {
+        if (!Gate::allows('delete-character', $character)) {
+            abort(403, 'У вас нет прав на удаление этого персонажа');
+        }
+
         $character->delete();
-        return redirect('/')
-            ->with('success', 'Персонаж успешно удален!');
+
+        return redirect('/')->with('success', 'Персонаж перемещен в корзину!');
+    }
+    public function restore($id)
+    {
+        $user = auth()->user();
+        
+        if (!Gate::allows('restore-character', $user)) {
+            abort(403, 'Только администратор может восстанавливать персонажей');
+        }
+        $character = Character::withTrashed()->findOrFail($id);
+
+        
+        $character->restore();
+
+        return redirect()->back()->with('success', 'Персонаж восстановлен!');
+    }
+    public function forceDelete($id)
+    {
+        $user = auth()->user();
+        
+        if (!Gate::allows('force-delete-character', $user)) {
+            abort(403, 'Только администратор может полностью удалять персонажей');
+        }
+        $character = Character::withTrashed()->findOrFail($id);
+
+        $character->forceDelete();
+
+        return redirect()->back()->with('success', 'Персонаж полностью удален!');
     }
 }

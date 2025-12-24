@@ -1,9 +1,7 @@
-import '../sass/app.scss';
-import * as bootstrap from 'bootstrap';
+import './bootstrap';
 
-document.addEventListener('DOMContentLoaded', function() {
-    const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-    const popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-        return new bootstrap.Popover(popoverTriggerEl);
-    });
-});
+import Alpine from 'alpinejs';
+
+window.Alpine = Alpine;
+
+Alpine.start();

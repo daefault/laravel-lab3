@@ -1,36 +1,74 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Губка Боб Персонажи')</title>
+    <title>@yield('title', 'Лабораторная №4')</title>
+
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+
+
+    @yield('styles')
 </head>
+
 <body>
-    <nav class="navbar navbar-expand-lg navbar-custom">
-        <div class="container">
-            <a class="navbar-brand" href="{{ route('characters.index') }}">
-                Персонажи Губки Боба
+
+    <nav class="navbar navbar-custom">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="https://avatars.mds.yandex.net/i?id=e5f9483464194c8bc568ccf408002b90_sr-8081694-images-thumbs&n=13"
+                    alt="Логотип сайта">
+                <span class="ms-2">Персонажи из м/с "Губка Боб Квадратные Штаны"</span>
             </a>
-            <div class="navbar-nav">
-                <a class="nav-link" href="{{ route('characters.index') }}">Все персонажи</a>
-                <a class="nav-link" href="{{ route('characters.create') }}">Добавить персонажа</a>
+            <div class="d-flex align-items-center">
+                @auth
+                    <a href="{{ route('characters.my') }}" class="btn btn-custom me-2">Мои персонажи</a>
+                    <a href="{{ route('characters.create') }}" class="btn btn-custom me-2">Добавить</a>
+
+                    @if(auth()->user()->is_admin)
+                        <a href="/admin/dashboard" class="btn btn-danger me-2">Админ-панель</a>
+                        <a href="{{ route('admin.trash') }}" class="btn btn-danger me-2">Корзина</a>
+                    @endif
+
+                    <span class="me-2">{{ Auth::user()->name }}</span>
+                    <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-link">Выйти</button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="btn btn-custom me-2">Войти</a>
+                    <a href="{{ route('register') }}" class="btn btn-custom">Регистрация</a>
+                @endauth
             </div>
         </div>
     </nav>
 
-    <main class="container my-4">
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
 
+    <main class="container my-4">
         @yield('content')
     </main>
 
+
+    <footer class="footer-custom py-3 mt-auto">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center">
+                <p class="mb-0 fw-bold">Денисов Артём</p>
+                <a href="/" class="btn btn-sm btn-outline-light">На главную</a>
+            </div>
+        </div>
+    </footer>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
     <script src="{{ asset('js/app.js') }}"></script>
-    @stack('scripts')
+
+    @yield('scripts')
 </body>
+
 </html>
