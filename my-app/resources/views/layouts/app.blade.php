@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Лабораторная №4')</title>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -26,11 +26,25 @@
             </a>
             <div class="d-flex align-items-center">
                 @auth
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            Друзья
+                            @if(auth()->user()->receivedFriendRequests()->where('status', 'pending')->count() > 0)
+                                <span class="badge bg-danger">
+                                    {{ auth()->user()->receivedFriendRequests()->where('status', 'pending')->count() }}
+                                </span>
+                            @endif
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ route('friends.index') }}">Мои друзья</a></li>
+                            <li><a class="dropdown-item" href="{{ route('friends.requests') }}">Запросы</a></li>
+                            <li><a class="dropdown-item" href="{{ route('friends.feed') }}">Лента</a></li>
+                        </ul>
+                    </li>
                     <a href="{{ route('characters.my') }}" class="btn btn-custom me-2">Мои персонажи</a>
                     <a href="{{ route('characters.create') }}" class="btn btn-custom me-2">Добавить</a>
 
                     @if(auth()->user()->is_admin)
-                        <a href="/admin/dashboard" class="btn btn-danger me-2">Админ-панель</a>
                         <a href="{{ route('admin.trash') }}" class="btn btn-danger me-2">Корзина</a>
                     @endif
 

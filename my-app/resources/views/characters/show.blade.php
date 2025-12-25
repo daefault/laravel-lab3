@@ -66,6 +66,31 @@
     @else
         Неизвестно
     @endif
+    <div class="mt-5">
+    <h4>
+        Комментарии ({{ $character->comments->count() }})
+        @if(auth()->check() && $character->comments->whereIn('user_id', $friendIds)->count() > 0)
+            <small class="text-primary">
+                <i class="fas fa-user-friends"></i>
+                {{ $character->comments->whereIn('user_id', $friendIds)->count() }} от друзей
+            </small>
+        @endif
+    </h4>
+    
+    @forelse($comments as $comment)
+        @include('comments._comment', [
+            'comment' => $comment,
+            'friendIds' => $friendIds ?? []
+        ])
+    @empty
+        <div class="alert alert-info">
+            Комментариев пока нет. Будьте первым!
+        </div>
+    @endforelse
+    
+    
+    @include('comments._form', ['character' => $character])
+</div>
                             </small>
                         </div>
                     </div>

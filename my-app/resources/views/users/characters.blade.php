@@ -8,7 +8,13 @@
         <h1>Персонажи пользователя: {{ $user->name }}</h1>
         <a href="javascript:history.back()" class="btn btn-secondary">Назад</a>
     </div>
-    
+    <div>
+        @auth
+            @if(auth()->user()->isFriendWith($user))
+                <span class="badge bg-success">Ваш друг</span>
+            @endif
+        @endauth
+    </div>
     @if($characters->isEmpty())
         <div class="alert alert-info">
             У пользователя {{ $user->name }} пока нет персонажей.
@@ -56,4 +62,5 @@
         <p>Зарегистрирован: {{ $user->created_at->format('d.m.Y') }}</p>
     </div>
 </div>
+@include('friends._actions', ['user' => $user])
 @endsection

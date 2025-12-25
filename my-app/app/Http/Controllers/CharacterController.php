@@ -33,11 +33,19 @@ class CharacterController extends Controller
             ->with('success', 'Персонаж успешно создан!');
     }
 
-    public function show(Character $character)
-    {
-        return view('characters.show', compact('character'));
-    }
-
+public function show(Character $character)
+{
+    $friendIds = auth()->check() 
+        ? auth()->user()->allFriends()->pluck('id')->toArray()
+        : [];
+    
+    $comments = $character->comments()
+        ->with('user')
+        ->latest()
+        ->get();
+    
+    return view('characters.show', compact('character', 'comments', 'friendIds'));
+}
     public function edit(Character $character)
     {
         if (!Gate::allows('update-character', $character)) {

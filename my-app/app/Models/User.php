@@ -29,21 +29,23 @@ class User extends Authenticatable
         });
     }
     public function generateUsername()
-{
-    $baseUsername = Str::slug($this->name, '-'); 
-    $username = $baseUsername;
-    $counter = 1;
-    
-    // Проверяем уникальность
-    while (self::where('username', $username)
-              ->where('id', '!=', $this->id)
-              ->exists()) {
-        $username = $baseUsername . '-' . $counter;
-        $counter++;
+    {
+        $baseUsername = Str::slug($this->name, '-');
+        $username = $baseUsername;
+        $counter = 1;
+
+        // Проверяем уникальность
+        while (
+            self::where('username', $username)
+                ->where('id', '!=', $this->id)
+                ->exists()
+        ) {
+            $username = $baseUsername . '-' . $counter;
+            $counter++;
+        }
+
+        return $username;
     }
-    
-    return $username;
-}
     /**
      * The attributes that are mass assignable.
      *
@@ -80,6 +82,56 @@ class User extends Authenticatable
     {
         return $this->hasMany(\App\Models\Character::class);
     }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+    public function sentFriendRequests()
+    {
+        return $this->hasMany(Friendship::class, 'user_id');
+    }
+
+    public function receivedFriendRequests()
+    {
+        return $this->hasMany(Friendship::class, 'friend_id');
+    }
+    public function friends()
+    {
+        return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id')
+            ->wherePivot('status', 'accepted')
+            ->withTimestamps();
+    }
+    public function friendOf()
+    {
+        return $this->belongsToMany(User::class, 'friendships', 'friend_id', 'user_id')
+            ->wherePivot('status', 'accepted')
+            ->withTimestamps();
+    }
+    public function allFriends()
+    {
+        return $this->friends->merge($this->friendOf);
+    }
+    public function isFriendWith(User $user)
+    {
+        return $this->friends()->where('friend_id', $user->id)->exists() ||
+            $this->friendOf()->where('user_id', $user->id)->exists();
+    }
+    public function hasSentFriendRequestTo(User $user)
+    {
+        return $this->sentFriendRequests()
+            ->where('friend_id', $user->id)
+            ->where('status', 'pending')
+            ->exists();
+    }
+    public function hasReceivedFriendRequestFrom(User $user)
+    {
+        return $this->receivedFriendRequests()
+            ->where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->exists();
+    }
+    
+
     public function isAdmin(): bool
     {
         return $this->is_admin === true;

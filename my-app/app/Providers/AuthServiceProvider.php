@@ -6,6 +6,7 @@ use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvid
 use Illuminate\Support\Facades\Gate;
 use App\Models\User;
 use App\Models\Character;
+use App\Models\Comment;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -51,6 +52,21 @@ class AuthServiceProvider extends ServiceProvider
 
         Gate::define('view-character', function (User $user, Character $character) {
             return true;
+        });
+        Gate::define('update-comment', function (User $user, Comment $comment) {
+            return $user->id === $comment->user_id || $user->is_admin;
+        });
+
+        Gate::define('delete-comment', function (User $user, Comment $comment) {
+            return $user->id === $comment->user_id || $user->is_admin;
+        });
+
+        Gate::define('restore-comment', function (User $user) {
+            return $user->is_admin;
+        });
+
+        Gate::define('force-delete-comment', function (User $user) {
+            return $user->is_admin;
         });
     }
 }

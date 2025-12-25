@@ -84,7 +84,14 @@ class Character extends Model
     {
         return $this->belongsTo(\App\Models\User::class);
     }
-
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+    public function commentsCount()
+    {
+        return $this->hasMany(Comment::class)->count();
+    }
     public function setNameAttribute($value)
     {
         $this->attributes['name'] = Str::ucfirst(trim($value));

@@ -33,7 +33,28 @@ $container-max-widths: (
 );
 
 @import "~bootstrap/scss/bootstrap";
+.friend-comment {
+    transition: all 0.3s ease;
+}
 
+.friend-comment:hover {
+    box-shadow: 0 0 10px rgba(13, 110, 253, 0.2);
+    transform: translateY(-2px);
+}
+
+@keyframes friendHighlight {
+    0% { background-color: rgba(13, 110, 253, 0.1); }
+    100% { background-color: rgba(13, 110, 253, 0.05); }
+}
+
+.friend-comment.new-comment {
+    animation: friendHighlight 2s ease-in-out;
+}
+
+.friend-badge {
+    font-size: 0.7em;
+    padding: 2px 6px;
+}
 body {
     background-color: $main-color;
     color: $font-color;
